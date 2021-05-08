@@ -25,9 +25,9 @@ import java.util.concurrent.TimeUnit;
 public class Render {
     private static final Logger LOG = LogManager.getLogger(Render.class);
 
-    private static final int MARGIN = 2;
-
     private static final int FONT_SCALE = 2;
+
+    private static final int MARGIN = 2 * FONT_SCALE;
     private static final int CELL_WIDTH = 6 * FONT_SCALE;
     private static final int CELL_HEIGHT = 9 * FONT_SCALE;
     private static final int FONT_MARGIN = FONT_SCALE;
