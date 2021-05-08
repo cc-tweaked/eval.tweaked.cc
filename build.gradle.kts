@@ -24,6 +24,11 @@ dependencies {
     implementation("org.squiddev:cc-tweaked-1.15.2:${modVersion}")
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
 application {
     mainClass.set("cc.tweaked.eval.Main")
 }
