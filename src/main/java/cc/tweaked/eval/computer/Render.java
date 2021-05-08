@@ -119,12 +119,8 @@ public class Render {
                 colour.getRGBComponents(rgb);
 
                 RescaleOp rop = new RescaleOp(rgb, zero, null);
-
-                GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
-                    .getDefaultConfiguration();
-
                 BufferedImage img = font.getSubimage(r.x, r.y, r.width, r.height);
-                BufferedImage pixel = gc.createCompatibleImage(r.width, r.height, Transparency.TRANSLUCENT);
+                BufferedImage pixel = new BufferedImage(r.width, r.height, BufferedImage.TYPE_INT_ARGB);
 
                 Graphics ig = pixel.getGraphics();
                 ig.drawImage(img, 0, 0, null);

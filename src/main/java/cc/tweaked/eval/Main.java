@@ -19,6 +19,8 @@ public class Main {
         ComputerCraft.httpWebsocketEnabled = false;
         ComputerCraft.computerThreads = 2;
 
+        System.setProperty("java.awt.headless", "true");
+
         if (CC.getJar() == null || CC.getVersion() == null || !Render.isValid()) System.exit(1);
 
         int port = Integer.parseInt(args[0]);
