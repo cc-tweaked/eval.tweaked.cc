@@ -2,7 +2,6 @@ package cc.tweaked.eval.computer;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Colour;
@@ -27,9 +26,11 @@ public class Render {
     private static final Logger LOG = LogManager.getLogger(Render.class);
 
     private static final int MARGIN = 2;
-    private static final int CELL_WIDTH = 6;
-    private static final int CELL_HEIGHT = 9;
-    private static final int FONT_MARGIN = 1;
+
+    private static final int FONT_SCALE = 2;
+    private static final int CELL_WIDTH = 6 * FONT_SCALE;
+    private static final int CELL_HEIGHT = 9 * FONT_SCALE;
+    private static final int FONT_MARGIN = FONT_SCALE;
 
     public static final int COLUMNS = 16;
     public static final int ROWS = 16;
@@ -43,8 +44,8 @@ public class Render {
 
     static {
         BufferedImage aFont = null;
-        try (InputStream stream = ComputerCraft.class.getResourceAsStream(
-            "/assets/computercraft/textures/gui/term_font.png"
+        try (InputStream stream = Render.class.getResourceAsStream(
+            "/hdfont.png"
         )) {
             if (stream != null) aFont = ImageIO.read(stream);
         } catch (IOException e) {
