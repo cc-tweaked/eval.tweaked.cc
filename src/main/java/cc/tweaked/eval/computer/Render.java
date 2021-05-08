@@ -82,7 +82,7 @@ public class Render {
             int cellHeight = y == 0 || y == height - 1 ? CELL_HEIGHT + MARGIN : CELL_HEIGHT;
 
             for (int x = 0; x < width; x++) {
-                int cellWidth = x == 0 || x == width - 1 ? CELL_HEIGHT + MARGIN : CELL_HEIGHT;
+                int cellWidth = x == 0 || x == width - 1 ? CELL_WIDTH + MARGIN : CELL_WIDTH;
 
                 graphics.setColor(getAwtColour(terminal.getPalette(), bgLine.charAt(x), Colour.BLACK));
                 graphics.fillRect(dx, dy, cellWidth, cellHeight);
@@ -115,26 +115,28 @@ public class Render {
         float[] zero = new float[4];
 
         try {
-            charImg = charImgCache.get(new CharImageRequest(c, colour), () -> {
-                float[] rgb = new float[4];
-                colour.getRGBComponents(rgb);
-
-                RescaleOp rop = new RescaleOp(rgb, zero, null);
-                BufferedImage img = font.getSubimage(r.x, r.y, r.width, r.height);
-                BufferedImage pixel = new BufferedImage(r.width, r.height, BufferedImage.TYPE_INT_ARGB);
-
-                Graphics ig = pixel.getGraphics();
-                ig.drawImage(img, 0, 0, null);
-                ig.dispose();
-
-                rop.filter(pixel, pixel);
-                return pixel;
-            });
+            charImg = charImgCache.get(new CharImageRequest(c, colour), () -> getTintedChar(colour, r, zero));
         } catch (ExecutionException e) {
             LOG.error("Could not retrieve char image from cache.", e);
         }
 
         g.drawImage(charImg, x, y, CELL_WIDTH, CELL_HEIGHT, null);
+    }
+
+    private static BufferedImage getTintedChar(Color colour, Rectangle r, float[] zero) {
+        float[] rgb = new float[4];
+        colour.getRGBComponents(rgb);
+
+        RescaleOp rop = new RescaleOp(rgb, zero, null);
+        BufferedImage img = font.getSubimage(r.x, r.y, r.width, r.height);
+        BufferedImage pixel = new BufferedImage(r.width, r.height, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics ig = pixel.getGraphics();
+        ig.drawImage(img, 0, 0, null);
+        ig.dispose();
+
+        rop.filter(pixel, pixel);
+        return pixel;
     }
 
     private static Color getAwtColour(Palette palette, char colour, Colour def) {
