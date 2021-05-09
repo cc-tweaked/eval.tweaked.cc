@@ -1,8 +1,9 @@
 local shutdown = cct_eval.shutdown
-os.shutdown = function()
+local do_shutdown  = function()
     shutdown()
     while true do coroutine.yield() end
 end
+os.reboot, os.shutdown = do_shutdown, do_shutdown
 
 _G.cct_eval = nil
 
@@ -38,4 +39,4 @@ else
     end
 end
 
-os.shutdown()
+do_shutdown()
