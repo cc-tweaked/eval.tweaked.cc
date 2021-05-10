@@ -14,7 +14,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * Handles the main entrypoint.
@@ -25,8 +27,8 @@ public class EvalRequestHandler implements HttpHandler {
     private static final Logger LOG = LogManager.getLogger(EvalRequestHandler.class);
 
     private final Executor executor;
-    private final Object lock = new Object();
     private final List<RunRequest> requests = new ArrayList<>();
+    private final BlockingQueue<RunRequest> pendingRequests = new LinkedBlockingDeque<>();
 
     public EvalRequestHandler(Executor executor) {
         this.executor = executor;
@@ -49,9 +51,7 @@ public class EvalRequestHandler implements HttpHandler {
             return;
         }
 
-        synchronized (lock) {
-            requests.add(request);
-        }
+        pendingRequests.offer(request);
     }
 
     private void sendResponse(HttpExchange exchange, boolean ok, BufferedImage image) {
@@ -81,20 +81,27 @@ public class EvalRequestHandler implements HttpHandler {
         while (true) {
             long started = System.nanoTime();
 
-            synchronized (lock) {
-                Iterator<RunRequest> iterator = requests.iterator();
-                while (iterator.hasNext()) {
-                    RunRequest request = iterator.next();
-                    if (!request.tick()) {
-                        request.cleanup();
-                        iterator.remove();
-                    }
+            RunRequest toQueue;
+            while ((toQueue = pendingRequests.poll()) != null) {
+                requests.add(toQueue);
+            }
+
+            Iterator<RunRequest> iterator = requests.iterator();
+            while (iterator.hasNext()) {
+                RunRequest request = iterator.next();
+                if (!request.tick()) {
+                    request.cleanup();
+                    iterator.remove();
                 }
             }
 
-            long took = System.nanoTime() - started;
-            long remaining = (50_000_000L - took) / 1_000_000;
-            if (remaining > 0) Thread.sleep(remaining);
+            if (requests.isEmpty()) {
+                requests.add(pendingRequests.take());
+            } else {
+                long took = System.nanoTime() - started;
+                long remaining = (50_000_000L - took) / 1_000_000;
+                if (remaining > 0) Thread.sleep(remaining);
+            }
         }
     }
 }
