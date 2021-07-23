@@ -6,6 +6,7 @@ end
 os.reboot, os.shutdown = do_shutdown, do_shutdown
 
 _G.cct_eval = nil
+_G.http = setmetatable({}, {__index = function() error("HTTP is currently disabled on eval.tweaked.cc", 2) end})
 
 term.clear()
 term.setCursorPos(1, 1)
