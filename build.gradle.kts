@@ -20,6 +20,7 @@ dependencies {
     implementation("it.unimi.dsi:fastutil:8.3.0")
     implementation("org.ow2.asm:asm:8.0.1")
     implementation("org.apache.commons:commons-lang3:3.6")
+    implementation("io.netty:netty-all:4.1.25.Final")
 
     implementation("org.squiddev:cc-tweaked-1.16.5:${modVersion}")
 }
