@@ -42,6 +42,8 @@ public class RunRequest implements ILuaAPI {
     private final byte[] startup;
     private final Computer computer;
     private final Path root;
+    private final Metrics metricsStore;
+    private final Metrics.ComputerMetrics metrics;
 
     private boolean everOn = false;
     private int aliveFor = 0;
@@ -49,15 +51,17 @@ public class RunRequest implements ILuaAPI {
     private boolean sentScreenshot = false;
     private final ScreenshotConsumer consumer;
 
-    public RunRequest(byte[] startup, ScreenshotConsumer consumer) throws IOException {
+    public RunRequest(byte[] startup, Metrics metricsStore, ScreenshotConsumer consumer) throws IOException {
         this.startup = startup;
         this.consumer = consumer;
         this.root = Files.createTempDirectory("cct_eval-");
+        this.metricsStore = metricsStore;
         this.computer = new Computer(
             new Environment(root),
             new Terminal(ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight),
             0
         );
+        this.metrics = metricsStore.add(computer);
         computer.addApi(this);
         computer.turnOn();
     }
@@ -89,11 +93,14 @@ public class RunRequest implements ILuaAPI {
 
     public synchronized void cleanup() {
         computer.unload();
+        metricsStore.remove(computer);
+
+        LOG.info("Computer finished: {}", metrics);
 
         try {
             MoreFiles.deleteRecursively(root);
         } catch (IOException e) {
-            ComputerCraft.log.error("Failed to clean up filesystem", e);
+            LOG.error("Failed to clean up filesystem", e);
         }
 
         if (!sentScreenshot) {

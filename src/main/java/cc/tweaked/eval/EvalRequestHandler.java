@@ -1,10 +1,10 @@
 package cc.tweaked.eval;
 
+import cc.tweaked.eval.computer.Metrics;
 import cc.tweaked.eval.computer.RunRequest;
 import com.google.common.io.ByteStreams;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import dan200.computercraft.ComputerCraft;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,6 +29,7 @@ public class EvalRequestHandler implements HttpHandler {
     private final Executor executor;
     private final List<RunRequest> requests = new ArrayList<>();
     private final BlockingQueue<RunRequest> pendingRequests = new LinkedBlockingDeque<>();
+    private final Metrics metricsStore = new Metrics();
 
     public EvalRequestHandler(Executor executor) {
         this.executor = executor;
@@ -42,7 +43,7 @@ public class EvalRequestHandler implements HttpHandler {
 
         RunRequest request;
         try {
-            request = new RunRequest(body, (ok, image) -> executor.execute(() -> sendResponse(exchange, ok, image)));
+            request = new RunRequest(body, metricsStore, (ok, image) -> executor.execute(() -> sendResponse(exchange, ok, image)));
         } catch (Exception e) {
             LOG.error("Failed to create computer", e);
 
@@ -66,7 +67,7 @@ public class EvalRequestHandler implements HttpHandler {
                 exchange.sendResponseHeaders(204, 0);
             }
         } catch (IOException e) {
-            ComputerCraft.log.error("Failed to send body", e);
+            LOG.error("Failed to send body", e);
         }
 
         exchange.close();
