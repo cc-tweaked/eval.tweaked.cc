@@ -15,9 +15,16 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
-        ComputerCraft.httpEnabled = false;
-        ComputerCraft.httpWebsocketEnabled = false;
-        ComputerCraft.computerThreads = 2;
+        if (System.getProperty("cct-eval.http", "true").equals("true")) {
+            ComputerCraft.httpEnabled = ComputerCraft.httpWebsocketEnabled = true;
+            // 128KB/s upload, 512KB/s download. Incredibly generous for CC, but should stop the most rampant of abuse.
+            ComputerCraft.httpUploadBandwidth = getProperty("cct-eval.http.upload", 128 * 1024);
+            ComputerCraft.httpDownloadBandwidth = getProperty("cct-eval.http.download", 512 * 1024);
+        } else {
+            ComputerCraft.httpEnabled = ComputerCraft.httpWebsocketEnabled = false;
+        }
+
+        ComputerCraft.computerThreads = getProperty("cct-eval.threads", 2);
 
         System.setProperty("java.awt.headless", "true");
 
@@ -38,6 +45,19 @@ public class Main {
             handler.run();
         } finally {
             server.stop(0);
+        }
+    }
+
+    private static int getProperty(String key, int def) {
+        String value = System.getProperty(key);
+        if (value == null) return def;
+
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            System.err.printf("Property %s invalid (cannot parse '%s').\n", key, value);
+            System.exit(1);
+            throw e;
         }
     }
 }
