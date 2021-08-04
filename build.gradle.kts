@@ -11,7 +11,7 @@ repositories {
     maven("https://squiddev.cc/maven")
 }
 
-val modVersion = "1.97.0"
+val modVersion = "1.98.0"
 
 dependencies {
     implementation("org.apache.logging.log4j:log4j-api:2.14.1")
