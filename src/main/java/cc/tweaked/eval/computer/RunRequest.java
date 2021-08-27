@@ -10,6 +10,9 @@ import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.filesystem.FileSystemWrapper;
 import dan200.computercraft.core.terminal.Terminal;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,6 +42,8 @@ public class RunRequest implements ILuaAPI {
     public static final int TICK = 50;
     public static final int MAX_TIME = 10_000 / TICK;
 
+    private final Context context;
+
     private final byte[] startup;
     private final Computer computer;
     private final Path root;
@@ -52,6 +57,7 @@ public class RunRequest implements ILuaAPI {
     private final ScreenshotConsumer consumer;
 
     public RunRequest(byte[] startup, Metrics metricsStore, ScreenshotConsumer consumer) throws IOException {
+        this.context = Context.current();
         this.startup = startup;
         this.consumer = consumer;
         this.root = Files.createTempDirectory("cct_eval-");
@@ -72,6 +78,12 @@ public class RunRequest implements ILuaAPI {
     }
 
     public boolean tick() {
+        try (Scope ignored = context.makeCurrent()) {
+            return tickImpl();
+        }
+    }
+
+    private boolean tickImpl() {
         LOG.info("Ticking computer (alive for {} ticks)", aliveFor);
 
         // If we've a screenshot available, abort immediately.
@@ -91,26 +103,43 @@ public class RunRequest implements ILuaAPI {
         return true;
     }
 
-    public synchronized void cleanup() {
+    public void cleanup() {
+        try (Scope ignored = context.makeCurrent()) {
+            cleanupImpl();
+        }
+    }
+
+    private synchronized void cleanupImpl() {
+        Span span = Span.current();
         computer.unload();
         metricsStore.remove(computer);
 
-        LOG.info("Computer finished: {}", metrics);
+        LOG.info("Computer finished.");
+        metrics.report();
 
         try {
             MoreFiles.deleteRecursively(root);
         } catch (IOException e) {
             LOG.error("Failed to clean up filesystem", e);
+            span.recordException(e);
         }
 
         if (!sentScreenshot) {
             sentScreenshot = true;
             consumer.consume(false, null);
         }
+
+        span.end();
     }
 
     @Override
     public void startup() {
+        try (Scope ignored = context.makeCurrent()) {
+            startupImpl();
+        }
+    }
+
+    private void startupImpl() {
         try (
             FileSystemWrapper<WritableByteChannel> startupWriter = computer
                 .getAPIEnvironment()
@@ -122,6 +151,7 @@ public class RunRequest implements ILuaAPI {
             ByteStreams.copy(startupChannel, startupWriter.get());
         } catch (FileSystemException | IOException e) {
             LOG.error("Cannot create startup file", e);
+            Span.current().recordException(e);
             computer.unload();
             return;
         }
@@ -132,13 +162,19 @@ public class RunRequest implements ILuaAPI {
             code.get().write(ByteBuffer.wrap(startup));
         } catch (FileSystemException | IOException e) {
             LOG.error("Cannot create startup file", e);
+            Span.current().recordException(e);
             computer.unload();
-            return;
         }
     }
 
     @LuaFunction("shutdown")
     public final void doShutdown() throws LuaException {
+        try (Scope ignored = context.makeCurrent()) {
+            shutdownImpl();
+        }
+    }
+
+    private void shutdownImpl() throws LuaException {
         if (sentScreenshot) throw new LuaException("Cannot take multiple screenshots");
 
         sendScreenshot(true);
