@@ -11,12 +11,12 @@ repositories {
     maven("https://squiddev.cc/maven")
 }
 
-val modVersion = "1.99.0"
+val modVersion = "1.99.1"
 
 dependencies {
     implementation("org.squiddev:cc-tweaked-1.16.5:${modVersion}")
 
-    implementation("org.apache.logging.log4j:log4j-api:2.14.1")
+    implementation("org.apache.logging.log4j:log4j-api:2.16.0")
     implementation("com.google.guava:guava") {
         version { strictly("22.0") }
     }
@@ -41,7 +41,7 @@ dependencies {
     implementation("io.opentelemetry:opentelemetry-exporter-prometheus:$otVersion-alpha")
     implementation("io.prometheus:simpleclient_common:0.11.0")
 
-    runtimeOnly("org.apache.logging.log4j:log4j-core:2.14.1")
+    runtimeOnly("org.apache.logging.log4j:log4j-core:2.16.0")
     runtimeOnly("io.opentelemetry.instrumentation:opentelemetry-log4j-2.13.2:$otVersion-alpha")
     runtimeOnly("io.grpc:grpc-netty:1.40.1") {
         exclude(mapOf("group" to "io.netty")) // We bundle our own netty above.
