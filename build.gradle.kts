@@ -11,7 +11,7 @@ repositories {
     maven("https://squiddev.cc/maven")
 }
 
-val modVersion = "1.100.2"
+val modVersion = "1.100.3"
 
 dependencies {
     implementation("org.squiddev:cc-tweaked-1.16.5:${modVersion}")
