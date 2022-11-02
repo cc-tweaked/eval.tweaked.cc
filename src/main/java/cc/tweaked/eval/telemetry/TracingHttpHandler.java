@@ -9,15 +9,15 @@ import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
 import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 public class TracingHttpHandler implements HttpHandler {
-    private static final Logger LOG = LogManager.getLogger(TracingHttpHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TracingHttpHandler.class);
 
     private final Handler handler;
 

@@ -11,12 +11,12 @@ repositories {
     maven("https://squiddev.cc/maven")
 }
 
-val modVersion = "1.100.10"
+val modVersion = "1.101.0"
 
 dependencies {
     implementation("org.squiddev:cc-tweaked-1.16.5:${modVersion}")
 
-    implementation("org.apache.logging.log4j:log4j-api:2.16.0")
+    implementation("org.slf4j:slf4j-api:1.7.36")
     implementation("com.google.guava:guava") {
         version { strictly("22.0") }
     }
@@ -25,7 +25,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.6")
     implementation("io.netty:netty-all:4.1.52.Final")
 
-    var otVersion = "1.5.0"
+    val otVersion = "1.5.0"
     implementation(platform("io.opentelemetry:opentelemetry-bom:$otVersion"))
 
     // Tracing
@@ -41,12 +41,12 @@ dependencies {
     implementation("io.opentelemetry:opentelemetry-exporter-prometheus:$otVersion-alpha")
     implementation("io.prometheus:simpleclient_common:0.11.0")
 
-    runtimeOnly("org.apache.logging.log4j:log4j-core:2.16.0")
+    runtimeOnly("org.apache.logging.log4j:log4j-core:2.19.0")
     runtimeOnly("io.opentelemetry.instrumentation:opentelemetry-log4j-2.13.2:$otVersion-alpha")
     runtimeOnly("io.grpc:grpc-netty:1.40.1") {
         exclude(mapOf("group" to "io.netty")) // We bundle our own netty above.
     }
-    runtimeOnly("org.slf4j:slf4j-log4j12:1.7.32")
+    runtimeOnly("org.apache.logging.log4j:log4j-slf4j2-impl:2.19.0")
 }
 
 java {

@@ -1,8 +1,8 @@
 package cc.tweaked.eval.computer;
 
 import dan200.computercraft.ComputerCraft;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -13,7 +13,7 @@ import java.security.CodeSource;
 import java.util.jar.JarFile;
 
 public class CC {
-    private static final Logger LOG = LogManager.getLogger(Render.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CC.class);
 
     private static final Path source;
     private static final String version;

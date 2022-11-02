@@ -6,6 +6,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.filesystem.FileSystemWrapper;
@@ -13,8 +14,8 @@ import dan200.computercraft.core.terminal.Terminal;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +38,7 @@ import java.util.function.Function;
  * screenshot, send it to the client, and then shutdown the computer.
  */
 public class RunRequest implements ILuaAPI {
-    private static final Logger LOG = LogManager.getLogger(RunRequest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RunRequest.class);
 
     public static final int TICK = 50;
     public static final int MAX_TIME = 10_000 / TICK;
@@ -47,8 +48,7 @@ public class RunRequest implements ILuaAPI {
     private final byte[] startup;
     private final Computer computer;
     private final Path root;
-    private final Metrics metricsStore;
-    private final Metrics.ComputerMetrics metrics;
+    private final ComputerMetrics metrics;
 
     private boolean everOn = false;
     private int aliveFor = 0;
@@ -56,18 +56,18 @@ public class RunRequest implements ILuaAPI {
     private boolean sentScreenshot = false;
     private final ScreenshotConsumer consumer;
 
-    public RunRequest(byte[] startup, Metrics metricsStore, ScreenshotConsumer consumer) throws IOException {
+    public RunRequest(ComputerContext computerContext, byte[] startup, ScreenshotConsumer consumer) throws IOException {
         this.context = Context.current();
         this.startup = startup;
         this.consumer = consumer;
         this.root = Files.createTempDirectory("cct_eval-");
-        this.metricsStore = metricsStore;
+        this.metrics = new ComputerMetrics(context);
         this.computer = new Computer(
-            new Environment(root),
-            new Terminal(ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight),
+            computerContext,
+            new Environment(root, metrics),
+            new Terminal(ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight, true),
             0
         );
-        this.metrics = metricsStore.add(computer);
         computer.addApi(this);
         computer.turnOn();
     }
@@ -112,7 +112,6 @@ public class RunRequest implements ILuaAPI {
     private synchronized void cleanupImpl() {
         Span span = Span.current();
         computer.unload();
-        metricsStore.remove(computer);
 
         LOG.info("Computer finished.");
         metrics.report();

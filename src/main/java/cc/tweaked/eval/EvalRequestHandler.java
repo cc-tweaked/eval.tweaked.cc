@@ -1,6 +1,6 @@
 package cc.tweaked.eval;
 
-import cc.tweaked.eval.computer.Metrics;
+import cc.tweaked.eval.computer.GlobalContext;
 import cc.tweaked.eval.computer.RunRequest;
 import cc.tweaked.eval.telemetry.TelemetryConfiguration;
 import cc.tweaked.eval.telemetry.TracingHttpHandler;
@@ -12,8 +12,8 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.context.Scope;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -31,12 +31,12 @@ import java.util.concurrent.LinkedBlockingDeque;
  * This reads the code to execute from the request body and returns an image in the response body.
  */
 public class EvalRequestHandler implements TracingHttpHandler.Handler {
-    private static final Logger LOG = LogManager.getLogger(EvalRequestHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EvalRequestHandler.class);
 
     private final Executor executor;
     private final List<RunRequest> requests = new ArrayList<>();
     private final BlockingQueue<RunRequest> pendingRequests = new LinkedBlockingDeque<>();
-    private final Metrics metricsStore = new Metrics();
+    private final GlobalContext context = new GlobalContext();
 
     private final LongCounter computers;
 
@@ -67,7 +67,7 @@ public class EvalRequestHandler implements TracingHttpHandler.Handler {
         RunRequest request;
         try (Scope ignored = child.makeCurrent()) {
             LOG.info("Starting new computer");
-            request = new RunRequest(body, metricsStore, (ok, image) -> executor.execute(() -> sendResponse(exchange, span, ok, image)));
+            request = new RunRequest(context.context(), body, (ok, image) -> executor.execute(() -> sendResponse(exchange, span, ok, image)));
         } catch (RuntimeException e) {
             LOG.error("Failed to create computer", e);
             span.setStatus(StatusCode.ERROR, e.getMessage());

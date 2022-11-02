@@ -6,8 +6,8 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  * Renders a terminal to an image. This is largely copied from CCEmuX's renderer.
  */
 public class Render {
-    private static final Logger LOG = LogManager.getLogger(Render.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Render.class);
 
     private static final int FONT_SCALE = 2;
 
