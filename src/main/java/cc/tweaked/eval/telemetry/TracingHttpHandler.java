@@ -34,7 +34,7 @@ public class TracingHttpHandler implements HttpHandler {
                 GlobalOpenTelemetry.get().getPropagators().getTextMapPropagator()
                     .extract(Context.current(), exchange.getRequestHeaders(), HeaderGetter.INSTANCE)
             )
-            .setSpanKind(SpanKind.CLIENT)
+            .setSpanKind(SpanKind.SERVER)
             .setAttribute(SemanticAttributes.NET_HOST_NAME, exchange.getLocalAddress().getHostName())
             .setAttribute(SemanticAttributes.NET_HOST_PORT, (long) exchange.getLocalAddress().getPort())
             .setAttribute(SemanticAttributes.HTTP_METHOD, exchange.getRequestMethod())
