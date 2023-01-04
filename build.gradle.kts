@@ -5,16 +5,26 @@ plugins {
 
 group = "cc.tweaked"
 version = "1.0-SNAPSHOT"
+val modVersion = "1.102.0"
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
 
 repositories {
     mavenCentral()
-    maven("https://squiddev.cc/maven")
+    maven("https://squiddev.cc/maven") {
+        content {
+            includeGroup("cc.tweaked")
+            includeModule("org.squiddev", "Cobalt")
+        }
+    }
 }
 
-val modVersion = "1.101.0"
-
 dependencies {
-    implementation("org.squiddev:cc-tweaked-1.16.5:${modVersion}")
+    implementation("cc.tweaked:cc-tweaked-1.19.3-core:$modVersion")
 
     implementation("org.slf4j:slf4j-api:1.7.36")
     implementation("com.google.guava:guava") {
@@ -25,33 +35,24 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.6")
     implementation("io.netty:netty-all:4.1.52.Final")
 
-    val otVersion = "1.5.0"
+    val otVersion = "1.21.0"
     implementation(platform("io.opentelemetry:opentelemetry-bom:$otVersion"))
+    implementation(platform("io.opentelemetry:opentelemetry-bom-alpha:$otVersion-alpha"))
 
     // Tracing
+    implementation("io.opentelemetry:opentelemetry-api")
     implementation("io.opentelemetry:opentelemetry-api")
     implementation("io.opentelemetry:opentelemetry-sdk")
     implementation("io.opentelemetry:opentelemetry-exporter-otlp")
     implementation("io.opentelemetry:opentelemetry-extension-trace-propagators")
-    implementation("io.opentelemetry:opentelemetry-semconv:$otVersion-alpha")
-
-    // Metrics
-    implementation("io.opentelemetry:opentelemetry-api-metrics:$otVersion-alpha")
-    implementation("io.opentelemetry:opentelemetry-sdk-metrics:$otVersion-alpha")
-    implementation("io.opentelemetry:opentelemetry-exporter-prometheus:$otVersion-alpha")
-    implementation("io.prometheus:simpleclient_common:0.11.0")
+    implementation("io.opentelemetry:opentelemetry-semconv")
 
     runtimeOnly("org.apache.logging.log4j:log4j-core:2.19.0")
-    runtimeOnly("io.opentelemetry.instrumentation:opentelemetry-log4j-2.13.2:$otVersion-alpha")
+    runtimeOnly("io.opentelemetry.instrumentation:opentelemetry-log4j-context-data-2.17-autoconfigure:$otVersion-alpha")
     runtimeOnly("io.grpc:grpc-netty:1.40.1") {
         exclude(mapOf("group" to "io.netty")) // We bundle our own netty above.
     }
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j2-impl:2.19.0")
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 application {

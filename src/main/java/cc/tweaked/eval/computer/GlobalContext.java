@@ -1,8 +1,10 @@
 package cc.tweaked.eval.computer;
 
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.computer.GlobalEnvironment;
+import dan200.computercraft.core.computer.mainthread.MainThreadScheduler;
+import dan200.computercraft.core.computer.mainthread.NoWorkMainThreadScheduler;
 import dan200.computercraft.core.filesystem.JarMount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,12 +17,12 @@ import java.util.concurrent.TimeUnit;
 
 public final class GlobalContext implements GlobalEnvironment, AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalContext.class);
+    private static final MainThreadScheduler SCHEDULER = new NoWorkMainThreadScheduler();
 
     private final ComputerContext context;
 
-    public GlobalContext() {
-        this.context = new ComputerContext(
-            this, 1, observer -> NoWorkMainThreadScheduler.INSTANCE);
+    public GlobalContext(int threads) {
+        this.context = new ComputerContext(this, threads, SCHEDULER);
     }
 
     public ComputerContext context() {
@@ -40,7 +42,7 @@ public final class GlobalContext implements GlobalEnvironment, AutoCloseable {
     }
 
     @Override
-    public IMount createResourceMount(String domain, String subPath) {
+    public Mount createResourceMount(String domain, String subPath) {
         try {
             return new JarMount(CC.getJar().toFile(), "data/" + domain + "/" + subPath);
         } catch (IOException e) {

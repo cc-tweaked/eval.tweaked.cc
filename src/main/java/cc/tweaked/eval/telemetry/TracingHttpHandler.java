@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
@@ -33,9 +34,11 @@ public class TracingHttpHandler implements HttpHandler {
                 GlobalOpenTelemetry.get().getPropagators().getTextMapPropagator()
                     .extract(Context.current(), exchange.getRequestHeaders(), HeaderGetter.INSTANCE)
             )
-            .setAttribute(SemanticAttributes.HTTP_METHOD, "GET")
+            .setSpanKind(SpanKind.CLIENT)
+            .setAttribute(SemanticAttributes.NET_HOST_NAME, exchange.getLocalAddress().getHostName())
+            .setAttribute(SemanticAttributes.NET_HOST_PORT, (long) exchange.getLocalAddress().getPort())
+            .setAttribute(SemanticAttributes.HTTP_METHOD, exchange.getRequestMethod())
             .setAttribute(SemanticAttributes.HTTP_SCHEME, "http")
-            .setAttribute(SemanticAttributes.HTTP_HOST, exchange.getLocalAddress().toString())
             .setAttribute(SemanticAttributes.HTTP_TARGET, "/")
             .startSpan();
 
@@ -70,15 +73,7 @@ public class TracingHttpHandler implements HttpHandler {
         Headers getResponseHeaders();
     }
 
-    private static class WrappedExchange implements Exchange {
-        private final HttpExchange exchange;
-        private final Span span;
-
-        private WrappedExchange(HttpExchange exchange, Span span) {
-            this.exchange = exchange;
-            this.span = span;
-        }
-
+    private record WrappedExchange(HttpExchange exchange, Span span) implements Exchange {
         @Override
         public InputStream getRequestBody() {
             return exchange.getRequestBody();

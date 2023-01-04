@@ -1,8 +1,8 @@
 package cc.tweaked.eval.computer;
 
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.core.computer.ComputerEnvironment;
-import dan200.computercraft.core.filesystem.FileMount;
+import dan200.computercraft.core.filesystem.WritableFileMount;
 import dan200.computercraft.core.metrics.MetricsObserver;
 
 import java.nio.file.Path;
@@ -35,7 +35,7 @@ final class Environment implements ComputerEnvironment {
     }
 
     @Override
-    public IWritableMount createRootMount() {
-        return new FileMount(root.toFile(), 1024 * 1024);
+    public WritableMount createRootMount() {
+        return new WritableFileMount(root.toFile(), 1024 * 1024);
     }
 }

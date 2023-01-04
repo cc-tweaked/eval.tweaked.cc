@@ -2,7 +2,6 @@ package cc.tweaked.eval.computer;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.MoreFiles;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -22,7 +21,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Function;
@@ -65,7 +64,7 @@ public class RunRequest implements ILuaAPI {
         this.computer = new Computer(
             computerContext,
             new Environment(root, metrics),
-            new Terminal(ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight, true),
+            new Terminal(51, 19, true),
             0
         );
         computer.addApi(this);
@@ -140,7 +139,7 @@ public class RunRequest implements ILuaAPI {
 
     private void startupImpl() {
         try (
-            FileSystemWrapper<WritableByteChannel> startupWriter = computer
+            FileSystemWrapper<SeekableByteChannel> startupWriter = computer
                 .getAPIEnvironment()
                 .getFileSystem()
                 .openForWrite("startup.lua", false, Function.identity());
@@ -156,7 +155,7 @@ public class RunRequest implements ILuaAPI {
         }
 
         try (
-            FileSystemWrapper<WritableByteChannel> code = computer.getAPIEnvironment().getFileSystem().openForWrite("code.lua", false, Function.identity());
+            FileSystemWrapper<SeekableByteChannel> code = computer.getAPIEnvironment().getFileSystem().openForWrite("code.lua", false, Function.identity());
         ) {
             code.get().write(ByteBuffer.wrap(startup));
         } catch (FileSystemException | IOException e) {

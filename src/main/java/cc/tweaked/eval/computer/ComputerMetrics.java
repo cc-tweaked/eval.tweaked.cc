@@ -5,9 +5,9 @@ import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.metrics.MetricsObserver;
+import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.api.metrics.GlobalMeterProvider;
 import io.opentelemetry.api.metrics.LongCounter;
 import io.opentelemetry.api.metrics.LongCounterBuilder;
 import io.opentelemetry.api.metrics.Meter;
@@ -34,7 +34,7 @@ class ComputerMetrics implements MetricsObserver {
 
     static {
         Metrics.init();
-        Meter meter = GlobalMeterProvider.get().get(NAMESPACE);
+        Meter meter = GlobalOpenTelemetry.getMeter(NAMESPACE);
 
         ImmutableMap.Builder<Metric, LongCounter> counterBuilder = new ImmutableMap.Builder<>();
 

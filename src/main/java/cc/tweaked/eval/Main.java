@@ -5,18 +5,12 @@ import cc.tweaked.eval.computer.Render;
 import cc.tweaked.eval.telemetry.TelemetryConfiguration;
 import cc.tweaked.eval.telemetry.TracingHttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.util.ThreadUtils;
-import io.prometheus.client.CollectorRegistry;
-import io.prometheus.client.exporter.common.TextFormat;
+import dan200.computercraft.core.CoreConfig;
+import dan200.computercraft.core.util.ThreadUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -24,15 +18,15 @@ import java.util.concurrent.TimeUnit;
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         if (System.getProperty("cct-eval.http", "true").equals("true")) {
-            ComputerCraft.httpEnabled = ComputerCraft.httpWebsocketEnabled = true;
+            CoreConfig.httpEnabled = CoreConfig.httpWebsocketEnabled = true;
             // 128KB/s upload, 512KB/s download. Incredibly generous for CC, but should stop the most rampant of abuse.
-            ComputerCraft.httpUploadBandwidth = getProperty("cct-eval.http.upload", 128 * 1024);
-            ComputerCraft.httpDownloadBandwidth = getProperty("cct-eval.http.download", 512 * 1024);
+            CoreConfig.httpUploadBandwidth = getProperty("cct-eval.http.upload", 128 * 1024);
+            CoreConfig.httpDownloadBandwidth = getProperty("cct-eval.http.download", 512 * 1024);
         } else {
-            ComputerCraft.httpEnabled = ComputerCraft.httpWebsocketEnabled = false;
+            CoreConfig.httpEnabled = CoreConfig.httpWebsocketEnabled = false;
         }
 
-        ComputerCraft.computerThreads = getProperty("cct-eval.threads", 2);
+        int computerThreads = getProperty("cct-eval.threads", 2);
 
         System.setProperty("java.awt.headless", "true");
 
@@ -46,21 +40,8 @@ public class Main {
             0, 4, 5L, TimeUnit.MINUTES,
             new SynchronousQueue<>(), ThreadUtils.factory("Server")
         ));
-        EvalRequestHandler handler = new EvalRequestHandler(server.getExecutor());
+        EvalRequestHandler handler = new EvalRequestHandler(server.getExecutor(), computerThreads);
         server.createContext("/", new TracingHttpHandler(handler));
-        server.createContext("/metrics", new TracingHttpHandler(t -> {
-            String contentType = TextFormat.chooseContentType(t.getRequestHeaders().getFirst("Accept"));
-            t.getResponseHeaders().set("Content-Type", contentType);
-
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            try (OutputStreamWriter writer = new OutputStreamWriter(output, StandardCharsets.UTF_8)) {
-                TextFormat.writeFormat(contentType, writer, CollectorRegistry.defaultRegistry.metricFamilySamples());
-            }
-
-            t.sendResponseHeaders(HttpURLConnection.HTTP_OK, output.size());
-            output.writeTo(t.getResponseBody());
-            t.close();
-        }));
         server.start();
 
         try {

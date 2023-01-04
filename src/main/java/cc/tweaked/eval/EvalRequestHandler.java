@@ -4,8 +4,7 @@ import cc.tweaked.eval.computer.GlobalContext;
 import cc.tweaked.eval.computer.RunRequest;
 import cc.tweaked.eval.telemetry.TelemetryConfiguration;
 import cc.tweaked.eval.telemetry.TracingHttpHandler;
-import com.google.common.io.ByteStreams;
-import io.opentelemetry.api.metrics.GlobalMeterProvider;
+import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.metrics.LongCounter;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.api.trace.Span;
@@ -36,18 +35,19 @@ public class EvalRequestHandler implements TracingHttpHandler.Handler {
     private final Executor executor;
     private final List<RunRequest> requests = new ArrayList<>();
     private final BlockingQueue<RunRequest> pendingRequests = new LinkedBlockingDeque<>();
-    private final GlobalContext context = new GlobalContext();
+    private final GlobalContext context;
 
     private final LongCounter computers;
 
-    public EvalRequestHandler(Executor executor) {
+    public EvalRequestHandler(Executor executor, int threads) {
         this.executor = executor;
+        this.context = new GlobalContext(threads);
 
-        Meter meter = GlobalMeterProvider.get().get(TelemetryConfiguration.NAME);
+        Meter meter = GlobalOpenTelemetry.get().getMeter(TelemetryConfiguration.NAME);
         meter.upDownCounterBuilder(TelemetryConfiguration.NAME + ".running_computers")
             .setDescription("Number of running computers")
             .setUnit("computers")
-            .buildWithCallback(o -> o.observe(requests.size() + pendingRequests.size()));
+            .buildWithCallback(o -> o.record(requests.size() + pendingRequests.size()));
 
         computers = meter.counterBuilder(TelemetryConfiguration.NAME + ".computers")
             .setDescription("Number of computers started")
@@ -58,7 +58,7 @@ public class EvalRequestHandler implements TracingHttpHandler.Handler {
     @Override
     public void handle(TracingHttpHandler.Exchange exchange) throws IOException {
         Span span = Span.current();
-        byte[] body = ByteStreams.toByteArray(exchange.getRequestBody());
+        byte[] body = exchange.getRequestBody().readAllBytes();
 
         Span child = TelemetryConfiguration.tracer().spanBuilder("computer")
             .setSpanKind(SpanKind.INTERNAL)

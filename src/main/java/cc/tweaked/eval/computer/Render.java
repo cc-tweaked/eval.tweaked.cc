@@ -2,10 +2,10 @@ package cc.tweaked.eval.computer;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
-import dan200.computercraft.shared.util.Colour;
-import dan200.computercraft.shared.util.Palette;
+import dan200.computercraft.core.util.Colour;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,6 +1,6 @@
 package cc.tweaked.eval.computer;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.ComputerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class CC {
     }
 
     private static Path findCC() {
-        CodeSource source = ComputerCraft.class.getProtectionDomain().getCodeSource();
+        CodeSource source = ComputerContext.class.getProtectionDomain().getCodeSource();
         if (source == null) return null;
 
         URI uri;
