@@ -20,13 +20,17 @@ h.close()
 fs.delete("startup.lua")
 fs.delete("code.lua")
 
-local fn, err = load("return " .. contents, "@startup.lua", nil, _ENV)
-if not fn then fn, err = load(contents, "@startup.lua", nil, _ENV) end
+local offset, fn, err = 7, load("return " .. contents, "@/startup.lua", nil, _ENV)
+if not fn then offset, fn, err = 0, load(contents, "@/startup.lua", nil, _ENV) end
 
 if not fn then
-    printError(err)
+    -- Naughty, but I can get away with it :p.
+    local parser = require "cc.internal.syntax"
+    if parser.parse_repl(contents) then printError(err) end
 else
-    local result = table.pack(pcall(fn))
+    local exception = require "cc.internal.exception"
+
+    local result = table.pack(exception.try(fn))
     if result[1] then
         local pretty = require "cc.pretty"
         for i = 2, result.n do
@@ -39,6 +43,9 @@ else
         end
     else
         printError(result[2])
+        exception.report(result[2], result[3], {
+            ["@/startup.lua"] = { contents = contents, offset = offset }
+        })
     end
 end
 
