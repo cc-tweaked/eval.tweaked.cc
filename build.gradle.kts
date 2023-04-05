@@ -5,7 +5,7 @@ plugins {
 
 group = "cc.tweaked"
 version = "1.0-SNAPSHOT"
-val modVersion = "1.103.1"
+val modVersion = "1.104.0"
 
 java {
     toolchain {
@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    implementation("cc.tweaked:cc-tweaked-1.19.3-core:$modVersion")
+    implementation("cc.tweaked:cc-tweaked-1.19.4-core:$modVersion")
 
     implementation("org.slf4j:slf4j-api:1.7.36")
     implementation("com.google.guava:guava") {
