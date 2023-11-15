@@ -5,7 +5,7 @@ plugins {
 
 group = "cc.tweaked"
 version = "1.0-SNAPSHOT"
-val modVersion = "1.108.4"
+val modVersion = "1.109.0"
 
 java {
     toolchain {
@@ -18,7 +18,6 @@ repositories {
     maven("https://squiddev.cc/maven") {
         content {
             includeGroup("cc.tweaked")
-            includeModule("org.squiddev", "Cobalt")
         }
     }
 }
