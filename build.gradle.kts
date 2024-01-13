@@ -15,8 +15,12 @@ java {
 
 repositories {
     mavenCentral()
-    maven("https://squiddev.cc/maven") {
-        content {
+
+    exclusiveContent {
+        forRepository {
+            maven("https://squiddev.cc/maven")
+        }
+        filter {
             includeGroup("cc.tweaked")
         }
     }
