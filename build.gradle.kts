@@ -29,11 +29,11 @@ repositories {
 dependencies {
     implementation("cc.tweaked:cc-tweaked-1.20.1-core:$modVersion")
 
-    implementation("org.slf4j:slf4j-api:2.0.13")
-    implementation("com.google.guava:guava:31.1-jre")
+    implementation("org.slf4j:slf4j-api:2.0.17")
+    implementation("com.google.guava:guava:33.4.0-jre")
 
     // Instrumentation
-    val otVersion = "1.39.0"
+    val otVersion = "1.47.0"
     implementation(platform("io.opentelemetry:opentelemetry-bom:$otVersion"))
 
     implementation("io.opentelemetry:opentelemetry-api")
@@ -42,13 +42,13 @@ dependencies {
     implementation("io.opentelemetry:opentelemetry-exporter-otlp")
     implementation("io.opentelemetry:opentelemetry-extension-trace-propagators")
 
-    implementation("io.opentelemetry.semconv:opentelemetry-semconv:1.25.0-alpha")
+    implementation("io.opentelemetry.semconv:opentelemetry-semconv:1.30.0")
 
-    runtimeOnly("io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:2.4.0-alpha")
+    runtimeOnly("io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:2.13.3-alpha")
 
     // Logging
-    runtimeOnly("ch.qos.logback:logback-core:1.5.6")
-    runtimeOnly("ch.qos.logback:logback-classic:1.5.6")
+    runtimeOnly("ch.qos.logback:logback-core:1.5.17")
+    runtimeOnly("ch.qos.logback:logback-classic:1.5.17")
 }
 
 application {
