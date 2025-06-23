@@ -1,6 +1,6 @@
 plugins {
     application
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "8.3.6"
 }
 
 group = "cc.tweaked"
@@ -33,7 +33,7 @@ dependencies {
     implementation("com.google.guava:guava:33.4.0-jre")
 
     // Instrumentation
-    val otVersion = "1.47.0"
+    val otVersion = "1.51.0"
     implementation(platform("io.opentelemetry:opentelemetry-bom:$otVersion"))
 
     implementation("io.opentelemetry:opentelemetry-api")
@@ -42,13 +42,13 @@ dependencies {
     implementation("io.opentelemetry:opentelemetry-exporter-otlp")
     implementation("io.opentelemetry:opentelemetry-extension-trace-propagators")
 
-    implementation("io.opentelemetry.semconv:opentelemetry-semconv:1.30.0")
+    implementation("io.opentelemetry.semconv:opentelemetry-semconv:1.34.0")
 
-    runtimeOnly("io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:2.13.3-alpha")
+    runtimeOnly("io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:2.16.0-alpha")
 
     // Logging
-    runtimeOnly("ch.qos.logback:logback-core:1.5.17")
-    runtimeOnly("ch.qos.logback:logback-classic:1.5.17")
+    runtimeOnly("ch.qos.logback:logback-core:1.5.18")
+    runtimeOnly("ch.qos.logback:logback-classic:1.5.18")
 }
 
 application {
