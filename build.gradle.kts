@@ -5,7 +5,7 @@ plugins {
 
 group = "cc.tweaked"
 version = "1.0"
-val modVersion = "1.115.1"
+val modVersion = "1.116.0"
 
 java {
     toolchain {
