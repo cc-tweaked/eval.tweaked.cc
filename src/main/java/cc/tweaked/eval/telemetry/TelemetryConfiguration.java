@@ -6,8 +6,8 @@ import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.context.propagation.TextMapPropagator;
-import io.opentelemetry.exporter.otlp.metrics.OtlpGrpcMetricExporter;
-import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
+import io.opentelemetry.exporter.otlp.http.metrics.OtlpHttpMetricExporter;
+import io.opentelemetry.exporter.otlp.http.trace.OtlpHttpSpanExporter;
 import io.opentelemetry.extension.trace.propagation.JaegerPropagator;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
@@ -34,14 +34,14 @@ public class TelemetryConfiguration {
         ));
 
         SdkTracerProvider tracerProvider = SdkTracerProvider.builder()
-            .addSpanProcessor(BatchSpanProcessor.builder(OtlpGrpcSpanExporter.builder().build()).build())
+            .addSpanProcessor(BatchSpanProcessor.builder(OtlpHttpSpanExporter.builder().build()).build())
             .setResource(resource)
             .build();
 
         SdkMeterProvider meterProvider = SdkMeterProvider.builder()
             .setResource(resource)
             .registerMetricReader(
-                PeriodicMetricReader.builder(OtlpGrpcMetricExporter.builder().build())
+                PeriodicMetricReader.builder(OtlpHttpMetricExporter.builder().build())
                     .setInterval(15, TimeUnit.SECONDS)
                     .build())
             .build();
