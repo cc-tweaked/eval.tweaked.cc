@@ -5,7 +5,7 @@ plugins {
 
 group = "cc.tweaked"
 version = "1.0"
-val modVersion = "1.116.0"
+val modVersion = "1.116.1"
 
 java {
     toolchain {
@@ -33,18 +33,23 @@ dependencies {
     implementation("com.google.guava:guava:33.4.0-jre")
 
     // Instrumentation
-    val otVersion = "1.51.0"
+    val otVersion = "1.52.0"
     implementation(platform("io.opentelemetry:opentelemetry-bom:$otVersion"))
 
     implementation("io.opentelemetry:opentelemetry-api")
     implementation("io.opentelemetry:opentelemetry-api")
     implementation("io.opentelemetry:opentelemetry-sdk")
-    implementation("io.opentelemetry:opentelemetry-exporter-otlp")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp") {
+        // Disable the okhttp exporter and use the JDK one instead.
+        exclude(group = "io.opentelemetry", module = "opentelemetry-exporter-sender-okhttp")
+    }
+    runtimeOnly("io.opentelemetry:opentelemetry-exporter-sender-jdk")
+
     implementation("io.opentelemetry:opentelemetry-extension-trace-propagators")
 
     implementation("io.opentelemetry.semconv:opentelemetry-semconv:1.34.0")
 
-    runtimeOnly("io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:2.16.0-alpha")
+    runtimeOnly("io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:2.17.0-alpha")
 
     // Logging
     runtimeOnly("ch.qos.logback:logback-core:1.5.18")
