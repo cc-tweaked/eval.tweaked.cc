@@ -1,11 +1,11 @@
 plugins {
     application
-    id("com.gradleup.shadow") version "8.3.6"
+    id("com.gradleup.shadow") version "9.3.0"
 }
 
 group = "cc.tweaked"
 version = "1.0"
-val modVersion = "1.116.2"
+val modVersion = "1.117.0"
 
 java {
     toolchain {
