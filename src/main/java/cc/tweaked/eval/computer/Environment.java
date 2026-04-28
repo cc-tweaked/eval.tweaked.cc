@@ -2,20 +2,16 @@ package cc.tweaked.eval.computer;
 
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.core.computer.ComputerEnvironment;
-import dan200.computercraft.core.filesystem.WritableFileMount;
+import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.metrics.MetricsObserver;
-
-import java.nio.file.Path;
 
 /**
  * The environment in which a computer executes.
  */
 final class Environment implements ComputerEnvironment {
-    private final Path root;
     private final MetricsObserver metrics;
 
-    Environment(Path root, MetricsObserver metrics) {
-        this.root = root;
+    Environment(MetricsObserver metrics) {
         this.metrics = metrics;
     }
 
@@ -36,6 +32,6 @@ final class Environment implements ComputerEnvironment {
 
     @Override
     public WritableMount createRootMount() {
-        return new WritableFileMount(root.toFile(), 1024 * 1024);
+        return new MemoryMount(1024 * 1024);
     }
 }

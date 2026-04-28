@@ -5,7 +5,7 @@ plugins {
 
 group = "cc.tweaked"
 version = "1.0"
-val modVersion = "1.117.0"
+val modVersion = "1.118.0"
 
 java {
     toolchain {
@@ -30,10 +30,10 @@ dependencies {
     implementation("cc.tweaked:cc-tweaked-1.20.1-core:$modVersion")
 
     implementation("org.slf4j:slf4j-api:2.0.17")
-    implementation("com.google.guava:guava:33.4.0-jre")
+    implementation("com.google.guava:guava:33.5.0-jre")
 
     // Instrumentation
-    val otVersion = "1.52.0"
+    val otVersion = "1.58.0"
     implementation(platform("io.opentelemetry:opentelemetry-bom:$otVersion"))
 
     implementation("io.opentelemetry:opentelemetry-api")
@@ -47,13 +47,10 @@ dependencies {
 
     implementation("io.opentelemetry:opentelemetry-extension-trace-propagators")
 
-    implementation("io.opentelemetry.semconv:opentelemetry-semconv:1.34.0")
+    implementation("io.opentelemetry.semconv:opentelemetry-semconv:1.37.0")
 
-    runtimeOnly("io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:2.17.0-alpha")
-
-    // Logging
-    runtimeOnly("ch.qos.logback:logback-core:1.5.18")
-    runtimeOnly("ch.qos.logback:logback-classic:1.5.18")
+    // Force a more recent Netty version
+    runtimeOnly(platform("io.netty:netty-bom:4.2.9.Final"))
 }
 
 application {
@@ -74,9 +71,8 @@ tasks.named<Jar>("jar") {
 
 tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
     mergeServiceFiles()
-    minimize() {
-        exclude(dependency("ch.qos.logback:.*:.*"))
-        exclude(dependency("io.opentelemetry.*:.*:.*"))
+    minimize {
+        exclude(dependency("io.opentelemetry:opentelemetry-exporter-sender-jdk:.*"))
     }
 }
 

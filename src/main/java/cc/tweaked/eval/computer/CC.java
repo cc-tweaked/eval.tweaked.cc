@@ -1,6 +1,7 @@
 package cc.tweaked.eval.computer;
 
 import dan200.computercraft.core.ComputerContext;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,8 +16,8 @@ import java.util.jar.JarFile;
 public class CC {
     private static final Logger LOG = LoggerFactory.getLogger(CC.class);
 
-    private static final Path source;
-    private static final String version;
+    private static final @Nullable Path source;
+    private static final @Nullable String version;
 
     static {
         source = findCC();
@@ -43,7 +44,7 @@ public class CC {
     private CC() {
     }
 
-    private static Path findCC() {
+    private static @Nullable Path findCC() {
         CodeSource source = ComputerContext.class.getProtectionDomain().getCodeSource();
         if (source == null) return null;
 
@@ -58,11 +59,11 @@ public class CC {
         return Paths.get(uri);
     }
 
-    public static String getVersion() {
+    public static @Nullable String getVersion() {
         return version;
     }
 
-    public static Path getJar() {
+    public static @Nullable Path getJar() {
         return source;
     }
 }

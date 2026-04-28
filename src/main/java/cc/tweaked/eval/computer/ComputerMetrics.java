@@ -1,7 +1,6 @@
 package cc.tweaked.eval.computer;
 
 import cc.tweaked.eval.telemetry.TelemetryConfiguration;
-import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.metrics.MetricsObserver;
@@ -14,6 +13,7 @@ import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.context.Context;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -36,7 +36,7 @@ class ComputerMetrics implements MetricsObserver {
         Metrics.init();
         Meter meter = GlobalOpenTelemetry.getMeter(NAMESPACE);
 
-        ImmutableMap.Builder<Metric, LongCounter> counterBuilder = new ImmutableMap.Builder<>();
+        Map<Metric, LongCounter> counterBuilder = new HashMap<>();
 
         for (Metric metric : Metric.metrics().values()) {
             LongCounterBuilder builder = meter.counterBuilder(PREFIX + metric.name())
@@ -45,12 +45,12 @@ class ComputerMetrics implements MetricsObserver {
             counterBuilder.put(metric, builder.build());
         }
 
-        counters = counterBuilder.build();
+        counters = Map.copyOf(counterBuilder);
     }
 
     private final Context context;
 
-    private volatile int time;
+    private volatile long time;
     private volatile int httpRequests;
     private volatile long httpUpload;
     private volatile long httpDownload;

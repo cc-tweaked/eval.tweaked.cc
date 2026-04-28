@@ -2,9 +2,7 @@ package cc.tweaked.eval.telemetry;
 
 import com.sun.net.httpserver.Headers;
 import io.opentelemetry.context.propagation.TextMapGetter;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 final class HeaderGetter implements TextMapGetter<Headers> {
     public static final HeaderGetter INSTANCE = new HeaderGetter();
@@ -12,15 +10,14 @@ final class HeaderGetter implements TextMapGetter<Headers> {
     private HeaderGetter() {
     }
 
-    @Nonnull
     @Override
-    public Iterable<String> keys(@Nonnull Headers carrier) {
+    public Iterable<String> keys(Headers carrier) {
         return carrier.keySet();
     }
 
-    @Nullable
+
     @Override
-    public String get(@Nullable Headers carrier, @Nonnull String key) {
+    public @Nullable String get(@Nullable Headers carrier, String key) {
         return carrier == null ? null : carrier.getFirst(key);
     }
 }

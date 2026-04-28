@@ -1,7 +1,6 @@
 package cc.tweaked.eval.computer;
 
 import com.google.common.io.ByteStreams;
-import com.google.common.io.MoreFiles;
 import dan200.computercraft.api.filesystem.MountConstants;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
@@ -23,8 +22,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 /**
  * A request to run code on a computer.
@@ -46,7 +43,6 @@ public class RunRequest implements ILuaAPI {
 
     private final byte[] startup;
     private final Computer computer;
-    private final Path root;
     private final ComputerMetrics metrics;
 
     private boolean everOn = false;
@@ -59,11 +55,10 @@ public class RunRequest implements ILuaAPI {
         this.context = Context.current();
         this.startup = startup;
         this.consumer = consumer;
-        this.root = Files.createTempDirectory("cct_eval-");
         this.metrics = new ComputerMetrics(context);
         this.computer = new Computer(
             computerContext,
-            new Environment(root, metrics),
+            new Environment(metrics),
             new Terminal(51, 19, true),
             0
         );
@@ -114,13 +109,6 @@ public class RunRequest implements ILuaAPI {
 
         LOG.info("Computer finished.");
         metrics.report();
-
-        try {
-            MoreFiles.deleteRecursively(root);
-        } catch (IOException e) {
-            LOG.error("Failed to clean up filesystem", e);
-            span.recordException(e);
-        }
 
         if (!sentScreenshot) {
             sentScreenshot = true;

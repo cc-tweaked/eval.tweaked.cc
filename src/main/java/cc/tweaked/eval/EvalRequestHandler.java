@@ -11,6 +11,7 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.context.Scope;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,11 +80,11 @@ public class EvalRequestHandler implements TracingHttpHandler.Handler {
             return;
         }
 
-        pendingRequests.offer(request);
+        pendingRequests.add(request);
         computers.add(1);
     }
 
-    private void sendResponse(TracingHttpHandler.Exchange exchange, Span span, boolean ok, BufferedImage image) {
+    private void sendResponse(TracingHttpHandler.Exchange exchange, Span span, boolean ok, @Nullable BufferedImage image) {
         try (Scope ignored = span.makeCurrent()) {
             exchange.getResponseHeaders().set("X-Clean-Exit", ok ? "True" : "False");
             if (image != null) {
