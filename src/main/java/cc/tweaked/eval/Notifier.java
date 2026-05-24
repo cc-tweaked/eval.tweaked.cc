@@ -30,8 +30,6 @@ public final class Notifier {
         var notifyPath = System.getenv("NOTIFY_SOCKET");
         if (notifyPath == null) return;
 
-        LOG.debug("Writing '{}' to {}", message, notifyPath);
-
         if (notifyPath.startsWith("@")) {
             notifyPath = "\0" + notifyPath.substring(1);
         } else if (!notifyPath.startsWith("/")) {
@@ -130,7 +128,6 @@ public final class Notifier {
             errnoHandle = errnoLayout.varHandle(MemoryLayout.PathElement.groupElement("errno"));
 
             var cInt = (ValueLayout.OfInt) Linker.nativeLinker().canonicalLayouts().get("int");
-            System.out.println(cInt.byteSize());
 
             socket = linker.downcallHandle(
                 stdlib.findOrThrow("socket"),
