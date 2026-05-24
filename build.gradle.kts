@@ -9,7 +9,7 @@ val modVersion = "1.119.0"
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 
@@ -27,13 +27,13 @@ repositories {
 }
 
 dependencies {
-    implementation("cc.tweaked:cc-tweaked-1.20.1-core:$modVersion")
+    implementation("cc.tweaked:cc-tweaked-26.1.2-core:$modVersion")
 
     implementation("org.slf4j:slf4j-api:2.0.17")
     implementation("com.google.guava:guava:33.5.0-jre")
 
     // Instrumentation
-    val otVersion = "1.58.0"
+    val otVersion = "1.62.0"
     implementation(platform("io.opentelemetry:opentelemetry-bom:$otVersion"))
 
     implementation("io.opentelemetry:opentelemetry-api")
@@ -47,10 +47,10 @@ dependencies {
 
     implementation("io.opentelemetry:opentelemetry-extension-trace-propagators")
 
-    implementation("io.opentelemetry.semconv:opentelemetry-semconv:1.37.0")
+    implementation("io.opentelemetry.semconv:opentelemetry-semconv:1.41.1")
 
     // Force a more recent Netty version
-    runtimeOnly(platform("io.netty:netty-bom:4.2.9.Final"))
+    runtimeOnly(platform("io.netty:netty-bom:4.2.14.Final"))
 }
 
 application {

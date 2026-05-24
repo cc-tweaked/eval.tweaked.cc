@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Handles the main entrypoint.
@@ -112,7 +113,12 @@ public class EvalRequestHandler implements TracingHttpHandler.Handler {
      * @throws InterruptedException If the thread is terminated
      */
     public void run() throws InterruptedException {
+        var notifier = new Notifier();
+        notifier.ready();
+
         while (true) {
+            notifier.signalWatchdog();
+
             long started = System.nanoTime();
 
             RunRequest toQueue;
@@ -130,7 +136,8 @@ public class EvalRequestHandler implements TracingHttpHandler.Handler {
             }
 
             if (requests.isEmpty()) {
-                requests.add(pendingRequests.take());
+                var item = pendingRequests.poll(notifier.watchdogDelay(), TimeUnit.MICROSECONDS);
+                if (item != null) requests.add(item);
             } else {
                 long took = System.nanoTime() - started;
                 long remaining = (50_000_000L - took) / 1_000_000;
